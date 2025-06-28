@@ -1,0 +1,141 @@
+---
+title: ""
+author: ""
+date: ""
+output: pdf_document
+header-includes:
+  - \usepackage[spanish]{babel}
+  - \usepackage{graphicx}
+  - \usepackage{titling}
+  - \usepackage{lipsum}
+  - \usepackage{geometry}
+  - \geometry{margin=1in}
+  - \usepackage{multicol}
+  - \usepackage{indentfirst}
+  - \setlength{\parindent}{2em}
+  - \setlength{\columnsep}{1cm}
+  - \usepackage{ragged2e}
+  - \usepackage{natbib}
+  - \bibliographystyle{apalike}
+---
+
+\vspace{2cm}  
+
+\begin{flushleft}
+    \begin{minipage}{0.2\textwidth}
+        \includegraphics[width=3cm]{assets/utm.png}
+    \end{minipage}
+    \begin{minipage}{0.75\textwidth}
+        \raggedright
+        \LARGE UNIVERSIDAD TECNOLÓGICA DE LA MIXTECA  \\
+        \Large MAESTRÍA EN CIENCIA DE DATOS  \\
+        \normalsize CLAVE DGP: 200089
+    \end{minipage}
+\end{flushleft}
+
+\vspace{3cm}  
+
+\begin{center}
+    \LARGE 371023 Visualización de datos\\
+    \Large Paquetes de escalas de colores \\
+    \large Dr. José del Carmen Jiménez Hernández
+\end{center}
+
+\vspace{5cm}  
+
+\begin{center}
+    \Large Lic. José Ricardo Mendoza Villar\\
+    \large 2024370008
+\end{center}
+
+\vspace{5cm}  
+
+\begin{center}
+    \large 02 de junio de 2025\\
+    \large Semestre 2025B
+\end{center}
+\newpage
+
+## Introducción
+
+La correcta selección y manipulación del color es crucial en disciplinas como el diseño gráfico, la visualización de datos y las ciencias aplicadas. En este documento se comparan dos sistemas importantes de representación de color: el sistema Munsell y el espacio de color HCL, utilizado por el paquete colorspace en R.
+
+```{r}
+library(colorBlindness)
+```
+
+## Munsell
+
+Munsell ideó su sistema de notación de color para que coincida con las tres dimensiones perceptuales del color: tono, valor y croma. Su notación proporciona un esquema de nomenclatura para los colores que facilita la elección de un color para un propósito específico.
+
+Munsell se basa directamente en las tablas publicadas por Newhall, Nickerson y Judd (1943) de valores CIE XYZ (Iluminante C) para los colores Munsell. Estas tablas fueron el resultado de estudios de igualación de color en muestras de color Munsell, junto con suavizado y extrapolación, con el objetivo de Munsell de lograr un espaciado perceptualmente uniforme.
+
+El paquete munsell facilita el acceso y la manipulación de los colores Munsell. Este paquete proporciona una correspondencia entre la notación original de Munsell (p. ej., "5R 5/10") y las cadenas hexadecimales sRGB, ideal para su uso directo en gráficos R.
+
+```{r, warning=FALSE}
+library(munsell)
+
+munsell_colors <- mnsl(c("5R 4/14", "10YR 8/6", "2.5PB 6/8", "5G 5/6", "7.5YR 3/4"))
+colorBlindness::displayAllColors(munsell_colors)
+```
+
+```{r, warning=FALSE}
+# Convertir una notación Munsell a HEX
+
+hex_colors <- mnsl(c("10YR 6/4", "5PB 4/10"))
+hex_colors
+```
+
+## Colorspace
+
+El paquete de colorspace proporciona un amplio conjunto de herramientas para seleccionar colores individuales o paletas de colores, manipularlos y emplearlos en diversos tipos de visualizaciones.
+
+El núcleo del paquete incluye diversas utilidades para calcular espacios de color. De este modo, el paquete ayuda a mapear diversas representaciones tridimensionales del color entre sí. Una asignación particularmente importante es la del modelo de color HCL (Tono-Croma-Luminancia), basado en la percepción e independiente del dispositivo, al estándar Rojo-Verde-Azul (sRGB), que constituye la base de las especificaciones de color en muchos sistemas basados en los códigos hexadecimales correspondientes.
+
+El espacio HCL (= coordenadas polares en CIELUV) es particularmente útil para especificar colores individuales y paletas de colores, ya que sus tres ejes se ajustan perfectamente a los del sistema visual humano: Tono (= tipo de color, longitud de onda dominante), croma (= intensidad de color) y luminancia (= brillo).
+
+El paquete de colorspace proporciona tres tipos de paletas basadas en el modelo HCL:
+
+- Cualitativa: Diseñada para codificar información categórica, es decir, donde no existe un ordenamiento específico de categorías y cada color debe recibir el mismo peso perceptual. Función: qualitative_hcl().  
+
+- Secuencial: Diseñada para codificar información ordenada/numérica, es decir, donde los colores van de mayor a menor (o viceversa). Función: sequential_hcl().  
+
+- Divergente: Diseñada para codificar información ordenada/numérica alrededor de un valor neutro central, es decir, donde los colores divergen de neutro a dos extremos. Función: diverging_hcl().  
+
+```{r, warning=FALSE, message=FALSE}
+library(colorspace)
+
+cs_palette <- qualitative_hcl(5, palette = "Dark 3")
+colorBlindness::displayAllColors(cs_palette)
+```
+
+```{r, warning=FALSE, message=FALSE}
+# Paleta cualitativa
+qual <- qualitative_hcl(6, palette = "Dark 2")
+paletas <- list("Cualitativa" = qual)
+swatchplot(paletas)
+title(main = "Paleta Cualitativa (Dark 2)")
+
+# Paleta secuencial
+seq <- sequential_hcl(7, palette = "Blues 3")
+paletas <- list("Secuencial" = seq)
+swatchplot(paletas)
+title(main = "Paleta Secuencial (Blues 3)")
+
+# Paleta divergente
+div <- diverging_hcl(9, palette = "Blue-Red")
+paletas <- list("Divergente" = div)
+swatchplot(paletas)
+title(main = "Paleta Divergente (Blue-Red)")
+```
+
+## Conclusión
+
+La comparación entre los sistemas de color Munsell y HCL revela dos enfoques complementarios para la representación y selección de colores perceptualmente uniformes. Ambos sistemas se alinean con dimensiones visuales humanas — tono, luminancia y croma — pero difieren en su estructura y aplicaciones:
+
+- Munsell se basa en una notación sistemática centrada en la percepción visual humana, ideal para representar colores de forma estandarizada y accesible. Su notación es particularmente útil en disciplinas como la pintura, el diseño de suelos o el arte, donde la comunicación precisa del color es esencial.
+
+- colorspace se fundamenta en el modelo HCL (Hue-Chroma-Luminance), lo que lo hace más adecuado para aplicaciones estadísticas y gráficas, gracias a su alineación perceptual con la visión humana y su integración con el sistema RGB, ampliamente utilizado en dispositivos electrónicos.
+
+\nocite{*}
+\bibliography{referencias/Referencias}

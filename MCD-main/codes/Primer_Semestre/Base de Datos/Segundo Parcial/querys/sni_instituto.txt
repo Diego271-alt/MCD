@@ -1,0 +1,42 @@
+// El número de SNIs por instituto
+[
+    {
+      $lookup: {
+        from: 'sni',
+        localField: '_id',
+        foreignField: 'profesor',
+        as: 'sniData'
+      }
+    },
+    {
+      $lookup: {
+        from: 'institutos',
+        localField: 'carrera',
+        foreignField: 'carreras',
+        as: 'institutoData'
+      }
+    },
+    {
+      $match: {
+        'institutoData': { $ne: [] }
+      }
+    },
+    {
+      $unwind: '$institutoData'
+    },
+    {
+      $unwind: '$sniData'
+    },
+    {
+      $project: {
+        institutos: '$institutoData.nombre',
+        nivelSNI: '$sniData.nivelSNI'
+      }
+    },
+    {
+      $group: {
+        _id: '$institutos',
+        cantidad: { $sum: 1 }
+      }
+    }
+  ]

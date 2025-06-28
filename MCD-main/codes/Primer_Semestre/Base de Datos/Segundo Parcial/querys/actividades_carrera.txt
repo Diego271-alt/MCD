@@ -1,0 +1,37 @@
+[
+  {
+    $lookup: {
+      from: 'profesores',
+      localField: '_id',
+      foreignField: 'carrera',
+      as: 'profesores'
+    }
+  },
+  {
+    $unwind: '$profesores'
+  },
+  {
+    $lookup: {
+      from: 'actividades',
+      localField: 'profesores._id',
+      foreignField: 'profesor',
+      as: 'actividades'
+    }
+  },
+ {
+    $unwind: {
+      path: '$actividades',
+      preserveNullAndEmptyArrays: true  // Permite que carreras sin actividades aún se muestren
+    }
+  },
+{
+    $group: {
+      _id: '$nombre',  // Agrupar por nombre de carrera
+      conteo: {
+        $sum: {
+          $cond: [{ $ifNull: ['$actividades', null] }, 1, 0]
+        }
+      }
+    }
+  },
+]

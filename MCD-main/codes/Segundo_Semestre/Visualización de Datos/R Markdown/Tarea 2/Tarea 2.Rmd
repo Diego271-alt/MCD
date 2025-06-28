@@ -1,0 +1,73 @@
+---
+title: ""
+author: ""
+date: ""
+output: pdf_document
+header-includes:
+  - \usepackage[spanish]{babel}
+  - \usepackage{graphicx}
+  - \usepackage{titling}
+  - \usepackage{lipsum}
+  - \usepackage{geometry}
+  - \geometry{margin=1in}
+  - \usepackage{multicol}
+  - \usepackage{indentfirst}
+  - \setlength{\parindent}{2em}
+  - \setlength{\columnsep}{1cm}
+  - \usepackage{ragged2e}
+  - \usepackage{natbib}
+  - \bibliographystyle{apalike}
+---
+
+\vspace{2cm}  
+
+\begin{flushleft}
+    \begin{minipage}{0.2\textwidth}
+        \includegraphics[width=3cm]{assets/utm.png}
+    \end{minipage}
+    \begin{minipage}{0.75\textwidth}
+        \raggedright
+        \LARGE UNIVERSIDAD TECNOLÓGICA DE LA MIXTECA  \\
+        \Large MAESTRÍA EN CIENCIA DE DATOS  \\
+        \normalsize CLAVE DGP: 200089
+    \end{minipage}
+\end{flushleft}
+
+\vspace{3cm}  
+
+\begin{center}
+    \LARGE 371023 Visualización de datos\\
+    \Large Escala de colores para resaltar\\
+    \large Dr. José del Carmen Jiménez Hernández
+\end{center}
+
+\vspace{5cm}  
+
+\begin{center}
+    \Large Lic. José Ricardo Mendoza Villar\\
+    \large 2024370008
+\end{center}
+
+\vspace{5cm}  
+
+\begin{center}
+    \large 31 de marzo de 2025\\
+    \large Semestre 2025B
+\end{center}
+\newpage
+
+Existen tres casos de uso fundamentales para las escalas de color respecto a su implementación en la visualización de datos, podemos usarlas para distinguir grupos de datos (usualmente del tipo categóricos), para representar valores de datos (usualmente del tipo continuo - como mapas de calor) y particularmente para el interes de esta actividad explorar su importancia para resaltar.
+
+
+Las escalas de colores en algunas ocasiones pueden ser efectivas para resaltar, ya que pueden haber categorías o valores específicos en el conjunto de datos que contienen información clave sobre alguna parte clave dentro de la historia que queremos contar, y podemos fortalecer esta narrativa enfatizando los elementos relevantes para el espectador. Una forma de lograr este énfasis es colorear estos elementos con un color o conjunto de colores que se destaquen en comparación con el resto de la figura.
+
+Ejemplo de escalas de color de acento:
+Se puede tomar una escala de colores existente y aclarar o desaturar algunos colores mientras se oscurecen otros. 
+Otra opción es tomar valores grises y emparejarlos con colores.
+
+\begin{center}
+    \includegraphics[width=12cm]{assets/escala_accent.png}
+\end{center}
+
+\nocite{*}
+\bibliography{referencias/Tarea-2}

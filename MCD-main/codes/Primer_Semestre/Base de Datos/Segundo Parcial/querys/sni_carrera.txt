@@ -1,0 +1,53 @@
+[    {
+        $lookup: {
+            from: "carreras",
+            localField: "carrera",
+            foreignField: "_id",
+            as: "carrera_info"
+        }
+    },
+    {
+        $unwind: "$carrera_info"  // Desempaquetar el campo carrera_info para poder acceder a su propiedad 'nombre'
+    },
+    {
+        $lookup: {
+            from: "sni",
+            localField: "_id",  // Profesor se relaciona con SNI por su _id
+            foreignField: "profesor",
+            as: "sni_info"
+        }
+    },
+    {
+        $unwind: {
+            path: "$sni_info",  // Asegurarse de trabajar con un solo documento SNI por profesor
+            preserveNullAndEmptyArrays: true  // Si no hay información SNI, no filtrar el documento
+        }
+    },
+    {
+        $project: {
+            carrera: "$carrera_info.nombre",  // Seleccionamos solo el nombre de la carrera
+            fin: "$sni_info.fin"  // Seleccionamos la fecha de finalización del SNI
+        }
+    },
+    {
+        $addFields: {
+            vigente: {
+                $gte: ["$fin", new Date("2025-01-28T00:00:00.000Z")]  // Verificamos si la fecha de finalización es posterior a 2025-01-28
+            }
+        }
+    },
+    {
+        $group: {
+            _id: "$carrera",  // Agrupamos por el nombre de la carrera
+            cantidad: {
+                $sum: {
+                    $cond: {
+                        if: { $eq: ["$vigente", true] },  // Si el campo vigente es verdadero, sumamos 1
+                        then: 1,
+                        else: 0
+                    }
+                }
+            }
+        }
+    }
+]

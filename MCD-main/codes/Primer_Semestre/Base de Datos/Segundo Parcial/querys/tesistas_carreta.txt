@@ -1,0 +1,52 @@
+[
+  {
+    $lookup: {
+      from: 'profesores',
+      localField: '_id',
+      foreignField: 'carrera',
+      as: 'profesores'
+    }
+  },
+  {
+    $unwind: '$profesores'
+  },
+  {
+    $lookup: {
+      from: 'tesistas',
+      let: { profesorId: '$profesores._id' },  // Usamos la variable let para almacenar el ID del profesor
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $in: ['$$profesorId', '$profesor'] // Verifica si el profesor está en el arreglo de profesores
+            }
+          }
+        }
+      ],
+      as: 'tesistas'
+    }
+  },
+  {
+    $unwind: {
+      path: '$tesistas',
+      preserveNullAndEmptyArrays: true // Permite que carreras sin tesistas aún se muestren
+    }
+  },
+  {
+    $group: {
+      _id: '$nombre',  // Agrupar por nombre de carrera
+      conteo: {
+        $sum: {
+          $cond: [{ $ifNull: ['$tesistas.profesor', null] }, 1, 0]
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      carrera: '$_id',
+      conteo: 1,
+      _id: 0
+    }
+  }
+]

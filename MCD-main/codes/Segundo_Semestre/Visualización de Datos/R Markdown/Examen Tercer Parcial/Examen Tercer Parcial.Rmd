@@ -1,0 +1,192 @@
+---
+title: ""
+author: ""
+date: ""
+output: pdf_document
+header-includes:
+  - \usepackage[spanish]{babel}
+  - \usepackage{graphicx}
+  - \usepackage{titling}
+  - \usepackage{lipsum}
+  - \usepackage{geometry}
+  - \geometry{margin=1in}
+  - \usepackage{multicol}
+  - \usepackage{indentfirst}
+  - \setlength{\parindent}{2em}
+  - \setlength{\columnsep}{1cm}
+  - \usepackage{ragged2e}
+  - \usepackage{natbib}
+  - \bibliographystyle{apalike}
+  - \usepackage{subcaption}
+---
+
+\vspace{2cm}  
+
+\begin{flushleft}
+    \begin{minipage}{0.2\textwidth}
+        \includegraphics[width=3cm]{assets/utm.png}
+    \end{minipage}
+    \begin{minipage}{0.75\textwidth}
+        \raggedright
+        \LARGE UNIVERSIDAD TECNOLÓGICA DE LA MIXTECA  \\
+        \Large MAESTRÍA EN CIENCIA DE DATOS  \\
+        \normalsize CLAVE DGP: 200089
+    \end{minipage}
+\end{flushleft}
+
+\vspace{3cm}  
+
+\begin{center}
+    \LARGE 371023 Visualización de datos\\
+    \Large Examen Tercer Parcial\\
+    \large Dr. José del Carmen Jiménez Hernández
+\end{center}
+
+\vspace{5cm}  
+
+\begin{center}
+    \Large Lic. José Ricardo Mendoza Villar\\
+    \large 2024370008
+\end{center}
+
+\vspace{5cm}  
+
+\begin{center}
+    \large 14 de junio de 2025\\
+    \large Semestre 2025B
+\end{center}
+\newpage
+
+```{r, echo=FALSE}
+# Importar paquetes
+suppressPackageStartupMessages(library(datos))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(ggplot2))
+```
+
+### Bibliotecas
+```{r, eval=FALSE}
+# Importar paquetes
+library(datos)
+library(dplyr)
+library(ggplot2)
+```
+
+\section*{Ejercicio 1}
+De la base de datos de diamantes:  
+
+- Muestra la distribución del precio segun corte y quilataje.  
+```{r fig.height=6, fig.width=8, warning=FALSE}
+ggplot(diamantes, aes(x = quilate, y = precio, color = corte)) +
+  geom_point(alpha = 0.5, size = 1) +
+  labs(
+    title = "Distribución del Precio según Corte y Quilataje",
+    x = "Quilate",
+    y = "Precio (escala logarítmica)",
+    color = "Corte"
+  ) +
+  theme_minimal()
+```
+
+- Realiza el facetado por corte y agrupando quilataje.  
+```{r fig.width=8, fig.height=6, warning=FALSE}
+diamantes$grupo_quilate <- cut(
+  diamantes$quilate,
+  breaks = c(0, 0.5, 1, 1.5, 2, 3, 6),
+  labels = c("[0, 0.5)", "[0.5, 1)", "[1, 1.5)", "[1.5, 2)", "[2, 3)", "[3-6]")
+)
+
+ggplot(diamantes, aes(y = grupo_quilate, x = precio)) +
+  geom_boxplot() +
+  facet_wrap(
+    . ~ corte,
+    scales = "free_x"
+  ) +
+  labs(
+    title = "Distribución del Precio por Corte y Grupo de Quilataje",
+    x = "Grupo de Quilate",
+    y = "Precio"
+  )
+```
+
+- Realiza el facetado por quilataje y agrupando corte.  
+```{r fig.width=8, fig.height=6, warning=FALSE}
+ggplot(
+  diamantes, aes(y = corte, x = precio)
+) +
+  geom_boxplot() +
+  facet_wrap(
+    . ~ grupo_quilate,
+    scales = "free_x"
+  ) +
+  labs(
+    title = "Distribución del Precio por Grupo de Quilataje y Corte",
+    x = "Corte",
+    y = "Precio"
+  )
+```
+
+- ¿Cuál prefieres?  
+
+Si queremos ver cómo varía el precio dentro de cada tipo de corte según quilataje, el facetado por corte (opción 2) es muy claro.  
+
+Si nos interesa comparar cómo influye el corte dentro de un mismo rango de quilataje, el facetado por quilataje (opción 3) es más informativo.  
+
+Personalmente, prefiero la opción 3, ya que agrupar por rangos de quilataje controla una de las variables más influyentes sobre el precio, y así podemos analizar más detenidamente el efecto del corte.  
+
+\section*{Ejercicio 2}
+De la base de datos de diamantes:  
+
+- Compare la relación entre precio y quilataje para cada color.  
+```{r fig.width=8, fig.height=6, warning=FALSE}
+ggplot(diamantes, aes(x = quilate, y = precio, color = color)) +
+  geom_point(alpha = 0.3) +
+  labs(title = "Precio vs Quilataje por Color", x = "Quilate", y = "Precio")
+```
+
+- ¿Qué dificulta la comparación de los grupos?  
+La gráfica anterior tiene varias dificultades ya que existen muchos puntos superpuestos, también algunas categorías tienen muchos más datos que otras y en caso de impresiones de blanco y negro o daltonismo, sería muy complicado poder seguir las gráficas.  
+
+- ¿Es mejor agruparlos o el facetados?  
+Para este caso con un conjunto de datos tan amplio y con valores muy condensados, resulta más útil el facetado
+
+- Si se usa faceta, ¿qué anotación se podría añadir para que sea más fácil ver las diferencias entre las gráficas?  
+Yo agregaria la distribución completa de color gris para poder ver como cada color contribuye en la distribución de la faceta:  
+```{r fig.width=8, fig.height=6, warning=FALSE}
+diamantes2 <- dplyr::select(diamantes, -color)
+
+ggplot(diamantes, aes(quilate, precio)) +
+  geom_point(data = diamantes2, color = "grey70", aes(color = factor(color)), alpha = 0.3) +
+  geom_point(aes(color = factor(color)), alpha = 0.7) +
+  facet_wrap(~ color) +
+  labs(
+    title = "Precio vs Quilataje por Color (Facetado)",
+    x = "Quilate",
+    y = "Precio",
+    color = "Color"
+  )
+```
+
+\section*{Ejercicio 3}
+¿Por qué generalmente es `facet_wrap()` más útil que `facet_grid()`?  
+
+- `facet_wrap()` organiza los paneles automáticamente en filas y columnas, adaptándose mejor al espacio disponible, por lo que, evita dejar paneles vacíos como puede ocurrir con `facet_grid()` cuando algunas combinaciones de dos variables no existen, en general permite un mejor control del facetado al poder personalizar el número de columnas o filas.
+
+\section*{Ejercicio 4}
+Recrea la siguiente gráfica. Se hace faceta de `mpg2` por clases, superponiendo una curva suave que se ajusta al conjunto de datos completo.
+```{r fig.width=8, fig.height=6, warning=FALSE}
+mpg2 <- mpg %>%
+  filter(
+    cyl != 5,
+    drv %in% c("4", "f"),
+    class != "compact"
+  )
+
+mpg22 <-mpg %>%
+  select(displ, hwy, class2 = class)
+  
+ggplot() +
+  geom_point(data = mpg2, aes(x = displ, y = hwy), color = "black") +
+  geom_smooth(data = mpg22, aes(x = displ, y = hwy), color = "blue", se = FALSE) +
+  facet_wrap(~class, ncol = 3)
+```

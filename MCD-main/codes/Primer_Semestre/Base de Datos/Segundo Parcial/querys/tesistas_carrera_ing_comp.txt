@@ -1,0 +1,57 @@
+// El número de tesistas por profesor de una carrera determinada
+[
+  {
+    $match: {
+      nombre: 'Ingeniería en Computación'
+    }
+  },
+  {
+    $lookup: {
+      from: 'profesores',
+      localField: '_id',
+      foreignField: 'carrera',
+      as: 'profesores'
+    }
+  },
+  {
+    $unwind: '$profesores'
+  },
+  {
+    $lookup: {
+      from: 'tesistas',
+      let: { profesorId: '$profesores._id' },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $in: ['$$profesorId', '$profesor']
+            }
+          }
+        }
+      ],
+      as: 'tesistas'
+    }
+  },
+  {
+    $unwind: {
+      path: '$tesistas',
+    }
+  },
+  {
+    $group: {
+      _id: '$profesores.nombre',
+      conteo: {
+        $sum: {
+          $cond: [{ $ifNull: ['$tesistas.profesor', null] }, 1, 0]
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      profesor: '$_id',
+      conteo: 1,
+      _id: 0
+    }
+  }
+]

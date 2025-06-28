@@ -1,0 +1,49 @@
+// El número de artículos por carrera
+[
+  {
+    $lookup: {
+      from: 'profesores',
+      localField: '_id',
+      foreignField: 'carrera',
+      as: 'profesores'
+    }
+  },
+  {
+    $unwind: '$profesores'
+  },
+  {
+    $lookup: {
+      from: 'articulos',
+      localField: 'profesores._id',
+      foreignField: 'autores',
+      as: 'artículos'
+    }
+  },
+  {
+    $unwind: '$artículos'
+  },
+  {
+    $addFields: {
+      esPrimerAutor: {
+        $eq: [{ $arrayElemAt: ['$artículos.autores', 0] }, '$profesores._id']
+      }
+    }
+  },
+{
+    $group: {
+      _id: '$nombre',
+      conteo: {
+        $sum: {
+          $cond: [{ $eq: ['$esPrimerAutor', true] }, 1, 0]
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      carrera: '$_id',
+      conteo: 1,
+      _id: 0
+    }
+  }
+]
